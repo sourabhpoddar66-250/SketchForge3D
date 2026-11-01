@@ -18,7 +18,7 @@
 
 The system combines sketch conditioning, pretrained image generation, foreground isolation, and single-image 3D reconstruction. It exports an actual **GLB**, not merely a 2D render; optional OBJ export and UV texture baking are supported.
 
-**Explore the evidence:** [**Watch the complete Gradio demonstration**][demo] · [**View the full report, screenshots and evaluated results**](https://drive.google.com/file/d/1acj5Vkque5-ybuzvzXjYcEwnzrBbsBPW/view?usp=sharing) · [**Open the Colab notebook**](SketchForge3D.ipynb)
+**Explore the evidence:** [**Watch the complete Gradio demonstration**](https://drive.google.com/file/d/1yWweotEWri15AjyFBRYXY0moK8WatUA2/view?usp=sharing) · [**View the full report, screenshots and evaluated results**](https://drive.google.com/file/d/1acj5Vkque5-ybuzvzXjYcEwnzrBbsBPW/view?usp=sharing) · [**Open the Colab notebook**](SketchForge3D.ipynb)
 
 ## 2. Detailed System Architecture
 
@@ -126,7 +126,7 @@ Add `--prompt "a wooden chair"` to guide appearance, or leave it out for the **n
 For the **actual screenshots, Gradio demonstration, sketch-to-output comparisons, textured-model views, graphs, and evaluation tables**, use these submission links:
 
 - **[Full project report and result screenshots](https://drive.google.com/file/d/1acj5Vkque5-ybuzvzXjYcEwnzrBbsBPW/view?usp=sharing)**
-- **[End-to-end Gradio demonstration video][demo]**
+- **[End-to-end Gradio demonstration video](https://drive.google.com/file/d/1yWweotEWri15AjyFBRYXY0moK8WatUA2/view?usp=sharing)**
 - [Recorded evaluation CSV](evaluation.csv) · [Sample GLB files](runs/)
 
 **Measured reference:** On a Tesla T4, evaluated Preview mug runs completed in approximately **50–52 seconds**, while the separate strict UV-baking run completed in **99.566 seconds**. One **no-prompt** batch run finished in **46.661 seconds**. These are observed runs, **not** promises for every sketch.
