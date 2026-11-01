@@ -1,0 +1,3 @@
+input,prompt_provided,status,backend,glb_passed,appearance,total_time_s,run_dir,error
+mug_sketch.png,True,success,TripoSR,True,vertex_colors,70.757,/content/sketchforge3d/runs/20261101_003249_49f2f14a,
+mug_sketch.png,False,success,TripoSR,True,vertex_colors,56.009,/content/sketchforge3d/runs/20261101_003401_e6434789,

@@ -1,0 +1,24 @@
+{
+  "artifact_version": "1.0.0",
+  "checked_on": "2026-10-31",
+  "cpu_regression_tests": {"passed": 13, "failed": 0},
+  "checks": [
+    "Notebook v4 schema and Python code-cell syntax",
+    "Embedded project files match companion source files",
+    "Linux x86_64 / Python 3.11 dependency set resolved: 73 packages",
+    "Pinned Python 3.11.13 Linux x86_64 managed distribution available",
+    "Selected PyTorch 2.6.0, torchvision 0.21.0, Diffusers and all TripoSR component imports on the local CPU host",
+    "Blank and inverted sketch handling, aspect-preserving framing, transparent input",
+    "Disconnected component preservation and optional decimation",
+    "CPU UV atlas baking, UV orientation, GLB texture/color round trips, OBJ side files",
+    "Asymmetric marching-cubes axis convention",
+    "Failed runs stay failed and produce diagnostic bundles"
+  ],
+  "not_verified_here": [
+    "Full GPU neural inference",
+    "Installation and execution on a live Google Colab GPU runtime",
+    "Colab widget and drawing interactions",
+    "Generation latency, GPU memory peaks and sketch-to-3D visual fidelity"
+  ],
+  "notes": "Local tests use Python 3.12 on macOS. The notebook creates a separate locked Python 3.11.13 Linux environment. No model weights or generated results were fabricated."
+}

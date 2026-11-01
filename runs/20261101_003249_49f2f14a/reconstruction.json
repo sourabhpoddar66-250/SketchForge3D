@@ -1,0 +1,106 @@
+{
+  "backend": "TripoSR",
+  "hardware": {
+    "name": "Tesla T4",
+    "total_gib": 14.56,
+    "torch": "2.6.0+cu124",
+    "cuda_build": "12.4"
+  },
+  "memory": {
+    "peak_allocated_gib": 1.823,
+    "peak_reserved_gib": 1.98
+  },
+  "duration_s": 24.64,
+  "raw_geometry": {
+    "passed": true,
+    "checks": {
+      "vertices_present": true,
+      "faces_present": true,
+      "finite_vertices": true,
+      "depth_present": true,
+      "positive_area": true
+    },
+    "vertices": 21376,
+    "faces": 42752,
+    "extents": [
+      0.9197877645492554,
+      1.0171128809452057,
+      0.9843516051769257
+    ],
+    "watertight": true,
+    "winding_consistent": true,
+    "components": 1,
+    "note": "Geometry checks detect invalid files and flat output; visual fidelity must also be inspected."
+  },
+  "final_geometry": {
+    "passed": true,
+    "checks": {
+      "vertices_present": true,
+      "faces_present": true,
+      "finite_vertices": true,
+      "depth_present": true,
+      "positive_area": true
+    },
+    "vertices": 21376,
+    "faces": 42752,
+    "extents": [
+      1.0,
+      0.9677899313025758,
+      0.9043123745463671
+    ],
+    "watertight": true,
+    "winding_consistent": true,
+    "components": 1,
+    "note": "Geometry checks detect invalid files and flat output; visual fidelity must also be inspected."
+  },
+  "export_validation": {
+    "passed": true,
+    "meshes": [
+      {
+        "passed": true,
+        "checks": {
+          "vertices_present": true,
+          "faces_present": true,
+          "finite_vertices": true,
+          "depth_present": true,
+          "positive_area": true
+        },
+        "vertices": 21376,
+        "faces": 42752,
+        "extents": [
+          1.0,
+          0.9677899479866028,
+          0.9043123722076416
+        ],
+        "watertight": true,
+        "winding_consistent": true,
+        "components": 1,
+        "note": "Geometry checks detect invalid files and flat output; visual fidelity must also be inspected."
+      }
+    ],
+    "has_texture": false,
+    "has_vertex_colors": true,
+    "appearance_preserved": true,
+    "bytes": 856028,
+    "sha256": "b05964cef88880d39efbe814af96dcff8693f122f41f7cf8a03da929d6a54752"
+  },
+  "appearance": "vertex_colors",
+  "obj": "not_requested",
+  "warnings": [],
+  "models": {
+    "triposr": {
+      "id": "stabilityai/TripoSR",
+      "revision": "5b521936b01fbe1890f6f9baed0254ab6351c04a"
+    },
+    "dino_config": {
+      "id": "facebook/dino-vitb16",
+      "revision": "f205d5d8e640a89a2b8ef0369670dfc37cc07fc2"
+    },
+    "code_commit": "107cefdc244c39106fa830359024f6a2f1c78871"
+  },
+  "adapters": [
+    "CPU PyMCubes adapter with TripoSR axis convention",
+    "DINO config revision pin",
+    "CPU UV rasterization with GPU color queries"
+  ]
+}

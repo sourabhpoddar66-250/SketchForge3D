@@ -1,0 +1,235 @@
+{
+  "version": "1.0.0",
+  "status": "success",
+  "stage": "complete",
+  "model_pins": {
+    "triposr_code": "107cefdc244c39106fa830359024f6a2f1c78871",
+    "base": {
+      "id": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+      "revision": "451f4fe16113bff5a5d2269ed5ad43b0592e9a14"
+    },
+    "controlnet": {
+      "id": "lllyasviel/control_v11p_sd15_scribble",
+      "revision": "3564ec7b87dd706d5fc760d21c9e90bb160d1e9f"
+    },
+    "triposr": {
+      "id": "stabilityai/TripoSR",
+      "revision": "5b521936b01fbe1890f6f9baed0254ab6351c04a"
+    },
+    "dino_config": {
+      "id": "facebook/dino-vitb16",
+      "revision": "f205d5d8e640a89a2b8ef0369670dfc37cc07fc2"
+    }
+  },
+  "config": {
+    "size": 512,
+    "steps": 20,
+    "mesh_resolution": 128,
+    "texture_size": 512,
+    "chunk_size": 4096,
+    "prompt": "",
+    "seed": 42,
+    "quality": "preview",
+    "candidates": 1,
+    "control_strength": 1.1,
+    "bake_texture": false,
+    "require_texture": false,
+    "target_faces": 0,
+    "export_obj": false,
+    "triposr_dir": "/content/sketchforge3d/TripoSR"
+  },
+  "environment": {
+    "python": "3.11.13 (main, Oct  7 2025, 15:34:32) [Clang 20.1.4 ]",
+    "platform": "Linux-6.6.159+-x86_64-with-glibc2.39",
+    "packages": {
+      "torch": "2.6.0",
+      "torchvision": "0.21.0",
+      "diffusers": "0.30.3",
+      "transformers": "4.44.2",
+      "accelerate": "0.34.2",
+      "huggingface-hub": "0.25.2",
+      "numpy": "1.26.4",
+      "Pillow": "10.4.0",
+      "opencv-python-headless": "4.10.0.84",
+      "rembg": "2.0.60",
+      "onnxruntime": "1.19.2",
+      "trimesh": "4.5.3",
+      "PyMCubes": "0.1.6",
+      "xatlas": "0.0.11",
+      "scipy": "1.14.1",
+      "fast-simplification": "0.1.7"
+    }
+  },
+  "input_sha256": "b62c75fd14bc5bab202e64ce40d167e712e27830f31320fa564f4c0cc818a09d",
+  "timings_s": {
+    "conditioning": 0.09,
+    "image_generation": 29.553,
+    "foreground_preparation": 5.171,
+    "3d_reconstruction_and_export": 21.193
+  },
+  "limitations": [
+    "Single-view hidden surfaces are inferred.",
+    "An empty text prompt is accepted, but ambiguous sketches can be misinterpreted.",
+    "Mesh checks do not establish semantic or manufacturing accuracy."
+  ],
+  "conditioning": {
+    "inverted_input": false,
+    "stroke_fraction": 0.0574188232421875,
+    "crop_box": [
+      103,
+      100,
+      441,
+      421
+    ]
+  },
+  "generation": {
+    "hardware": {
+      "name": "Tesla T4",
+      "total_gib": 14.56,
+      "torch": "2.6.0+cu124",
+      "cuda_build": "12.4"
+    },
+    "memory": {
+      "peak_allocated_gib": 3.038,
+      "peak_reserved_gib": 3.229
+    },
+    "duration_s": 24.508,
+    "full_prompt": "studio product photograph of a single solid physical object matching the supplied sketch, preserve the outline and proportions of the supplied drawing, same viewpoint, one complete object, plain white background, soft even lighting, realistic surfaces",
+    "models": {
+      "base": {
+        "id": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+        "revision": "451f4fe16113bff5a5d2269ed5ad43b0592e9a14"
+      },
+      "controlnet": {
+        "id": "lllyasviel/control_v11p_sd15_scribble",
+        "revision": "3564ec7b87dd706d5fc760d21c9e90bb160d1e9f"
+      }
+    },
+    "selected_seed": 42,
+    "candidates": [
+      {
+        "file": "03_candidate_1.png",
+        "seed": 42,
+        "edge_f1_heuristic": 0.8431,
+        "white_border_fraction": 0.24751,
+        "ranking_score": 0.75376
+      }
+    ],
+    "note": "Edge agreement is a 2D ranking heuristic, not a measure of 3D correctness."
+  },
+  "preparation": {
+    "method": "rembg/isnet-general-use",
+    "provider": "CPUExecutionProvider",
+    "original_coverage": 0.46236419677734375,
+    "foreground_ratio": 0.85,
+    "small_components_removed": false
+  },
+  "reconstruction": {
+    "backend": "TripoSR",
+    "hardware": {
+      "name": "Tesla T4",
+      "total_gib": 14.56,
+      "torch": "2.6.0+cu124",
+      "cuda_build": "12.4"
+    },
+    "memory": {
+      "peak_allocated_gib": 1.823,
+      "peak_reserved_gib": 1.98
+    },
+    "duration_s": 17.354,
+    "raw_geometry": {
+      "passed": true,
+      "checks": {
+        "vertices_present": true,
+        "faces_present": true,
+        "finite_vertices": true,
+        "depth_present": true,
+        "positive_area": true
+      },
+      "vertices": 20606,
+      "faces": 41208,
+      "extents": [
+        0.8892945647239685,
+        0.9919893145561218,
+        0.9702191948890686
+      ],
+      "watertight": true,
+      "winding_consistent": true,
+      "components": 2,
+      "note": "Geometry checks detect invalid files and flat output; visual fidelity must also be inspected."
+    },
+    "final_geometry": {
+      "passed": true,
+      "checks": {
+        "vertices_present": true,
+        "faces_present": true,
+        "finite_vertices": true,
+        "depth_present": true,
+        "positive_area": true
+      },
+      "vertices": 20606,
+      "faces": 41208,
+      "extents": [
+        1.0,
+        0.9780540784587035,
+        0.8964759515800779
+      ],
+      "watertight": true,
+      "winding_consistent": true,
+      "components": 2,
+      "note": "Geometry checks detect invalid files and flat output; visual fidelity must also be inspected."
+    },
+    "export_validation": {
+      "passed": true,
+      "meshes": [
+        {
+          "passed": true,
+          "checks": {
+            "vertices_present": true,
+            "faces_present": true,
+            "finite_vertices": true,
+            "depth_present": true,
+            "positive_area": true
+          },
+          "vertices": 20606,
+          "faces": 41208,
+          "extents": [
+            1.0,
+            0.9780541062355042,
+            0.8964759707450867
+          ],
+          "watertight": true,
+          "winding_consistent": true,
+          "components": 2,
+          "note": "Geometry checks detect invalid files and flat output; visual fidelity must also be inspected."
+        }
+      ],
+      "has_texture": false,
+      "has_vertex_colors": true,
+      "appearance_preserved": true,
+      "bytes": 825180,
+      "sha256": "621c9154605a2b4a79b0ba1c4f2ede91bcadcef6f922a33bb923f9a2fbbe5c1b"
+    },
+    "appearance": "vertex_colors",
+    "obj": "not_requested",
+    "warnings": [],
+    "models": {
+      "triposr": {
+        "id": "stabilityai/TripoSR",
+        "revision": "5b521936b01fbe1890f6f9baed0254ab6351c04a"
+      },
+      "dino_config": {
+        "id": "facebook/dino-vitb16",
+        "revision": "f205d5d8e640a89a2b8ef0369670dfc37cc07fc2"
+      },
+      "code_commit": "107cefdc244c39106fa830359024f6a2f1c78871"
+    },
+    "adapters": [
+      "CPU PyMCubes adapter with TripoSR axis convention",
+      "DINO config revision pin",
+      "CPU UV rasterization with GPU color queries"
+    ]
+  },
+  "total_time_s": 56.009,
+  "glb": "model.glb"
+}

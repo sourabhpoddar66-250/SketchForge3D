@@ -1,0 +1,17 @@
+{
+  "size": 512,
+  "steps": 20,
+  "mesh_resolution": 128,
+  "texture_size": 512,
+  "chunk_size": 4096,
+  "prompt": "",
+  "seed": 42,
+  "quality": "preview",
+  "candidates": 1,
+  "control_strength": 1.1,
+  "bake_texture": false,
+  "require_texture": false,
+  "target_faces": 0,
+  "export_obj": false,
+  "triposr_dir": "/content/sketchforge3d/TripoSR"
+}
