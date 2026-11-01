@@ -18,7 +18,7 @@
 
 The system combines sketch conditioning, pretrained image generation, foreground isolation, and single-image 3D reconstruction. It exports an actual **GLB**, not merely a 2D render; optional OBJ export and UV texture baking are supported.
 
-**Explore the evidence:** [**Watch the complete Gradio demonstration**][demo] · [**View the full report, screenshots and evaluated results**][https://drive.google.com/file/d/1acj5Vkque5-ybuzvzXjYcEwnzrBbsBPW/view?usp=sharing] · [**Open the Colab notebook**](SketchForge3D.ipynb)
+**Explore the evidence:** [**Watch the complete Gradio demonstration**][demo] · [**View the full report, screenshots and evaluated results**](https://drive.google.com/file/d/1acj5Vkque5-ybuzvzXjYcEwnzrBbsBPW/view?usp=sharing) · [**Open the Colab notebook**](SketchForge3D.ipynb)
 
 ## 2. Detailed System Architecture
 
@@ -125,7 +125,7 @@ Add `--prompt "a wooden chair"` to guide appearance, or leave it out for the **n
 
 For the **actual screenshots, Gradio demonstration, sketch-to-output comparisons, textured-model views, graphs, and evaluation tables**, use these submission links:
 
-- **[Full project report and result screenshots][https://drive.google.com/file/d/1acj5Vkque5-ybuzvzXjYcEwnzrBbsBPW/view?usp=sharing]**
+- **[Full project report and result screenshots](https://drive.google.com/file/d/1acj5Vkque5-ybuzvzXjYcEwnzrBbsBPW/view?usp=sharing)**
 - **[End-to-end Gradio demonstration video][demo]**
 - [Recorded evaluation CSV](evaluation.csv) · [Sample GLB files](runs/)
 
