@@ -1,125 +1,161 @@
+<div align="center">
+
 # SketchForge3D
 
-**Sketch-guided 3D asset generation using ControlNet and TripoSR**  
-TechZephyr 4.0 · IIT Bhubaneswar · Sketch2Shape AI Challenge  
-**Team BSP:** Saurabh Poddar and Biswasmita Rout
+**Sketch-guided 3D asset generation with ControlNet and TripoSR**
 
-## Overview and objective
+*TechZephyr 4.0 · IIT Bhubaneswar · Sketch2Shape AI Challenge*
 
-Traditional 3D modeling requires specialized tools and skills. **SketchForge3D** makes early-stage 3D prototyping more accessible by turning one hand-drawn or uploaded **2D sketch into actual 3D geometry**. A text description can guide the object's appearance, but is **not required**. The result is an inspectable, downloadable **GLB mesh** (optional OBJ and UV texture).
+**Team BSP** — Saurabh Poddar & Biswasmita Rout
 
-## Demo, report and downloads
+`Google Colab` · `Python 3.11` · `NVIDIA Tesla T4` · `GLB / OBJ`
 
-| Resource | Link |
-|---|---|
-| **Demonstration video** | [Watch the end-to-end demo](PASTE_VIDEO_DRIVE_LINK_HERE) |
-| **Project report and screenshots** | [Architecture, evaluation, comparisons and screenshots](PASTE_REPORT_DRIVE_LINK_HERE) |
-| **Run in Colab** | [SketchForge3D.ipynb](SketchForge3D.ipynb) |
-| **Sample 3D outputs** | [GLB example 1](runs/20261101_003249_49f2f14a/model.glb) · [GLB example 2](runs/20261101_003401_e6434789/model.glb) |
-| **Machine-readable evaluation** | [evaluation.csv](evaluation.csv) |
+</div>
 
-> The report contains the detailed architecture diagram, equations, result images, UV comparisons, mesh-quality inspection and limitations. This README focuses on running and verifying the project.
+## 1. Clear Overview
 
-## Setup and execution — Google Colab
+**SketchForge3D** converts a rough, single-view 2D sketch into an inspectable **3D triangle mesh**, reducing the effort needed to explore early-stage product concepts. Users can **upload a sketch or draw in the application** and optionally supply a text description. Text is **not required** to generate a model.
 
-1. Open [SketchForge3D.ipynb](SketchForge3D.ipynb) in [Google Colab](https://colab.research.google.com/) (or download and upload the notebook).
-2. Select **Runtime → Change runtime type → GPU**. Development and measured runs used an **NVIDIA Tesla T4**.
-3. Execute the notebook's setup cells **in order**. They prepare an isolated Python 3.11 environment; pretrained weights download on first use.
-4. Launch the interface from the notebook, then **upload a sketch or draw one on the canvas**.
-5. Optionally describe the object. For a first run choose **Preview**, **Seed 42**, and **1 candidate**; press **Generate 3D model**.
-6. Inspect the 3D result and download the **GLB/result ZIP**. Try strict UV baking only after a normal run succeeds.
+The system combines sketch conditioning, pretrained image generation, foreground isolation, and single-image 3D reconstruction. It exports an actual **GLB**, not merely a 2D render; optional OBJ export and UV texture baking are supported.
 
-**Inputs:** A sketch image or in-app drawing, with optional text. **Outputs:** `model.glb`, intermediate images, masks, logs, configuration and a run report. Each inference uses a fresh output directory.
+**Explore the evidence:** [**Watch the complete Gradio demonstration**][demo] · [**View the full report, screenshots and evaluated results**][report] · [**Open the Colab notebook**](SketchForge3D.ipynb)
 
-## Architecture and model choices
+## 2. Detailed System Architecture
 
-**Sketch/drawing → OpenCV conditioning → Stable Diffusion 1.5 + ControlNet Scribble → rembg/IS-Net foreground isolation → TripoSR reconstruction → mesh validation, optional UV baking and GLB export.**
+The following vertical diagram follows the **implemented data flow**, including the optional-prompt path, strict UV behavior, and final export validation.
 
-| Component | Why it is used |
-|---|---|
-| Stable Diffusion 1.5 + ControlNet Scribble | Generate an object image while conditioning on sketch contours |
-| OpenCV | Normalize, frame and prepare sketch guidance |
-| rembg / IS-Net | Separate the object from its background |
-| TripoSR (float32) | Reconstruct real 3D geometry from the prepared image |
-| trimesh, PyMCubes, xatlas | Extract, validate, export and optionally UV-texture the mesh |
+```mermaid
+flowchart TD
+    A["1 · User input<br/>Upload sketch / draw on canvas"]
+    B["2 · Sketch conditioning<br/>OpenCV: normalize, frame, prepare strokes"]
+    C["3 · Scribble guidance<br/>Control map for ControlNet"]
+    P["Optional text prompt<br/>May be left empty"]
+    D["4 · Sketch-guided image synthesis<br/>Stable Diffusion 1.5 + ControlNet Scribble"]
+    E["5 · Candidate image selection<br/>Generated object image"]
+    F["6 · Foreground isolation<br/>rembg / IS-Net mask"]
+    G["7 · Reconstruction image<br/>Cut-out, framing and background composite"]
+    H["8 · Image-to-3D inference<br/>TripoSR in float32"]
+    I["9 · Mesh extraction and cleanup<br/>Triangle geometry + color queries"]
+    J{"10 · UV texture requested?"}
+    K["Vertex-color appearance"]
+    L["xatlas UV atlas<br/>CPU texture baking"]
+    M{"Texture bake succeeded?"}
+    X["Strict-mode failure report<br/>No false success"]
+    N["11 · Export GLB<br/>Optional OBJ + material files"]
+    O["12 · Validate exported asset<br/>Reload GLB, geometry and appearance checks"]
+    Q["13 · Gradio result<br/>Interactive 3D viewer + downloadable ZIP"]
 
-The pipeline integrates **pretrained models**; it does not claim custom model training. Image generation and reconstruction run in separate workers to release GPU allocations between stages.
+    A --> B --> C --> D --> E --> F --> G --> H --> I --> J
+    P -.->|Optional guidance| D
+    J -->|No| K --> N
+    J -->|Yes| L --> M
+    M -->|Yes| N
+    M -->|No, non-strict| K
+    M -->|No, strict| X
+    N --> O --> Q
 
-### Model and data attribution
+    classDef input fill:#fff4cf,stroke:#c99521,color:#242424,stroke-width:1.4px;
+    classDef generation fill:#ffe4c3,stroke:#d27c1b,color:#242424,stroke-width:1.4px;
+    classDef geometry fill:#ffdddd,stroke:#ba4646,color:#242424,stroke-width:1.4px;
+    classDef output fill:#e1f3e8,stroke:#2a8659,color:#242424,stroke-width:1.4px;
+    classDef alert fill:#ffe7e7,stroke:#b72828,color:#242424,stroke-width:1.4px;
+    class A,B,C,P input;
+    class D,E,F,G generation;
+    class H,I,J,K,L,M geometry;
+    class N,O,Q output;
+    class X alert;
+```
 
-- **Models:** [Stable Diffusion 1.5](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5), [ControlNet Scribble](https://huggingface.co/lllyasviel/control_v11p_sd15_scribble), [TripoSR](https://huggingface.co/stabilityai/TripoSR), and rembg's IS-Net segmentation model. Their pretrained weights are obtained from the respective upstream sources; model training was **not** performed in this project.
-- **Input/evaluation data:** User-supplied or hand-drawn single-object sketches; the documented mug sketch is one evaluated example. **No custom training dataset, data collection pipeline, or train/test split** is claimed. Detailed example inputs and screenshots are linked in the project report.
-- **Licenses:** Follow the original model cards and library license terms. Pretrained model weights are **not redistributed** in this repository.
+**Key design decisions:** ControlNet keeps visual generation tied to the sketch; **rembg/IS-Net** prepares the foreground for **TripoSR**; separate neural workers release GPU allocations between stages. The final GLB is reopened and checked after export. The project **integrates pretrained models**; Team BSP does not claim to have trained these networks.
 
-## Reproducible CLI run
+## 3. Setup
 
-On Linux with an NVIDIA GPU, use the environment created by `python bootstrap.py`:
+**Required:** Google Colab with an available NVIDIA GPU, internet access, and enough disk space for model weights. Tested hardware: **Tesla T4**. Initial model downloads can take several minutes; the exact first-download time was not recorded.
+
+1. Open [**SketchForge3D.ipynb**](SketchForge3D.ipynb) in [Google Colab](https://colab.research.google.com/).
+2. Select **Runtime → Change runtime type → GPU**.
+3. Run the notebook's setup cells **in order**. They create an isolated Python 3.11 environment and install the pinned dependencies.
+4. Run the application's launch cell and open the interface link it provides.
+
+**Dependency pins:** PyTorch `2.6.0`, Diffusers `0.30.3`, Transformers `4.44.2`, Hugging Face Hub `0.25.2`; see [`requirements.lock`](requirements.lock) and [`bootstrap.py`](bootstrap.py). Model weights download at runtime and are **not bundled** with the repository.
+
+## 4. Execution — From Sketch to Download
+
+1. **Input:** Upload a drawing or use the sketch canvas; the interface accepts an optional description.
+2. **Configure:** Start with **Preview**, **seed 42**, and **one candidate**. UV baking can be enabled separately.
+3. **Generate:** Click **Generate 3D Model**. The application displays preprocessing and pipeline progress.
+4. **Inspect:** Review input/control images, foreground preparation, logs, and the generated **interactive 3D model**.
+5. **Export:** Download the validated GLB or the result ZIP containing intermediate images, configuration, logs and reports.
+
+**Input:** Single-object sketch image or canvas drawing; prompt may be empty.  
+**Output:** `model.glb` and a run bundle; optional OBJ and baked-texture files.
+
+<details>
+<summary><strong>Optional command-line execution</strong></summary>
+
+On Linux/NVIDIA hardware, after running `python bootstrap.py`:
 
 ```bash
 .venv/bin/python engine.py run \
   --input sketch.png \
-  --run-dir runs/my_first_run \
+  --run-dir runs/example_new \
   --triposr-dir TripoSR \
   --quality preview \
   --seed 42 \
   --candidates 1
 ```
 
-Provide `--prompt "a ceramic mug"` to guide appearance. For a **strict UV test**, also pass `--texture --require-texture`. Use a **new** `--run-dir` each time; run `engine.py run --help` for all options. Dependencies are pinned in [`requirements.lock`](requirements.lock); original source is in [`engine.py`](engine.py). The separately preserved [`engine_uv_fixed.py`](engine_uv_fixed.py) contains the tested UV material-color adjustment.
+Add `--prompt "a wooden chair"` to guide appearance, or leave it out for the **no-prompt** path. Add `--texture --require-texture` to demand strict UV baking. Always choose a **new** run directory.
 
-## Sample results and evaluation
+</details>
 
-**Hardware:** Tesla T4 · **Preview:** seed 42, one candidate · **Test object:** mug sketch.
+## 5. Model and Data Attribution
 
-| Test | Total time | Observed result |
-|---|---:|---|
-| Mug with prompt (batch evaluation) | **50.618 s** | Valid GLB; vertex colors |
-| Mug without prompt (batch evaluation) | **46.661 s** | Valid GLB; vertex colors |
-| Mug with detailed prompt (mesh inspection) | **51.759 s** | Valid GLB; handle connected, but surface banding visible |
-| Strict UV bake | **99.566 s** | GLB with verified embedded 512×512 texture; material appearance needed adjustment |
+| Component | Purpose | Upstream source |
+|:---|:---|:---|
+| Stable Diffusion 1.5 | Generate the refined object image | [Model card](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5) |
+| ControlNet Scribble | Preserve sketch-based structural guidance | [Model card](https://huggingface.co/lllyasviel/control_v11p_sd15_scribble) |
+| rembg / IS-Net | Segment and isolate the object foreground | [Source](https://github.com/danielgatis/rembg) |
+| TripoSR | Single-image 3D reconstruction | [Source](https://github.com/VAST-AI-Research/TripoSR) · [Weights](https://huggingface.co/stabilityai/TripoSR) |
+| OpenCV, trimesh, PyMCubes, xatlas | Image preparation, mesh checks and UV/export processing | Respective open-source projects and pinned dependencies |
 
-**Representative stage times (52.254 s mug run):** conditioning **0.094 s** · image generation **25.544 s** · foreground preparation **6.288 s** · reconstruction/export **20.324 s**.
+**Data used:** User-supplied and hand-drawn test sketches (including the documented mug example). **No custom training dataset, fine-tuning, or train/test split** is claimed. Pretrained-model and third-party licenses must be observed.
 
-Peak **PyTorch-allocated** GPU memory observed: approximately **3.04 GiB** during image generation and **1.82 GiB** during reconstruction. These are allocation peaks, **not** total device VRAM consumption. The first-run model-download duration was **not independently measured**; downloads add substantial time and require internet access. See the linked report for visual comparisons and the evaluation methodology.
+## 6. Sample Results and Evidence
 
-**Validation:** GLBs were reopened and checked for nonempty finite triangle geometry. Texture tests checked embedded image data. A valid export does **not** guarantee a watertight, artifact-free or manufacturing-ready mesh.
+For the **actual screenshots, Gradio demonstration, sketch-to-output comparisons, textured-model views, graphs, and evaluation tables**, use these submission links:
 
-## Reproducibility
+- **[Full project report and result screenshots][report]**
+- **[End-to-end Gradio demonstration video][demo]**
+- [Recorded evaluation CSV](evaluation.csv) · [Sample GLB files](runs/)
 
-- **Environment:** Python 3.11, PyTorch 2.6.0, Diffusers 0.30.3, Transformers 4.44.2 and pinned Hugging Face Hub 0.25.2. Use the lockfile; incompatible upgrades can break imports.
-- **Weights:** Model weights are fetched at runtime and are **not** stored in this repository. GPU availability and runtime vary in Colab. Fixed seeds improve comparability but do not guarantee cross-environment identical results.
-- **Evidence:** Each run saves its configuration, input/intermediate images, logs and validation report. Use a new run directory, seed 42 and one candidate for repeatable comparison.
+**Measured reference:** On a Tesla T4, evaluated Preview mug runs completed in approximately **50–52 seconds**, while the separate strict UV-baking run completed in **99.566 seconds**. One **no-prompt** batch run finished in **46.661 seconds**. These are observed runs, **not** promises for every sketch.
 
-## Limitations
+GPU telemetry recorded approximately **3.04 GiB** peak *PyTorch-allocated* memory during generation and **1.82 GiB** during reconstruction; these numbers are **not whole-device peak VRAM**. The report explains geometric quality and texture behavior in detail.
 
-- **Geometry:** A single view cannot reveal all hidden surfaces. Some mug reconstructions showed disconnected handles, surface banding or unwanted background-derived geometry.
-- **Texture:** Strict UV baking produced an embedded texture, but the original export appeared too dark. The material adjustment was tested in a **separate backend copy**; the original engine remains unchanged.
-- **Resources:** Colab GPU availability varies. Model downloads add time, and exact first-download duration was not recorded. Export validity does not imply manufacturing readiness.
+## 7. Limitations
 
-## Troubleshooting
+- **Single-view ambiguity:** Hidden geometry must be inferred; an exported mesh may not be fully connected or manufacturing-ready.
+- **Visual artifacts:** Background-removal or generation artifacts can affect final 3D shape; some mug tests showed detached handles or extra geometry.
+- **UV appearance:** Strict baking produced an embedded texture, but one initial export rendered dark; a **separate** `engine_uv_fixed.py` experiment corrected its appearance without changing the original engine.
+- **Resources and repeatability:** Colab GPU availability, cold downloads, and hardware/software differences affect runtime and exact output.
 
-| Problem | What to try |
-|---|---|
-| No GPU / out of memory | Enable a Colab GPU, use **Preview** and **1 candidate**, and free other GPU workloads. |
-| Dependency import error | Recreate the isolated environment using `bootstrap.py` and `requirements.lock`; avoid upgrading the pinned Hugging Face packages. |
-| Wrong object / missing parts | Compare the saved control map, generated image and foreground mask to locate the failing stage. |
-| Dark or missing UV texture | Check strict UV logs and the separate `engine_uv_fixed.py` appearance experiment. |
-| Interrupted Colab session | Download the result ZIP promptly; `/content` data may disappear when the runtime ends. |
+## 8. Troubleshooting
 
-## Project files
+| Problem | Recommended action |
+|:---|:---|
+| No GPU / out of memory | Attach a GPU, select **Preview** and **one candidate**, and free other GPU workloads. |
+| Package import failure | Restore the pinned environment; Hugging Face Hub `2.x` is incompatible with the pinned Transformers version. |
+| Upload or drawing not accepted | Check the selected input mode, use a common image format, and relaunch the interface if widget state is lost. |
+| Unexpected geometry | Inspect the sketch/control map, generated image and foreground mask before judging TripoSR. |
+| Texture fails or looks dark | Inspect UV logs, try strict mode for verification, and compare with the separate material-correction backend. |
+| Colab session interrupted | Download the ZIP promptly; files under `/content` may be lost when the session resets. |
 
-| File | Purpose |
-|---|---|
-| [`SketchForge3D.ipynb`](SketchForge3D.ipynb) | Colab workflow and notebook interface |
-| [`engine.py`](engine.py) / [`engine_uv_fixed.py`](engine_uv_fixed.py) | Original pipeline / separate UV appearance correction |
-| [`bootstrap.py`](bootstrap.py) / [`requirements.lock`](requirements.lock) | Isolated setup and pinned dependencies |
-| [`notebook_app.py`](notebook_app.py) | Notebook-native input and preview interface |
-| [`test_engine.py`](test_engine.py) | CPU regression tests |
-| [`evaluation.csv`](evaluation.csv) / `runs/` | Recorded evaluation and example GLBs |
+---
 
-## Credits and responsible use
+**Team BSP — Saurabh Poddar & Biswasmita Rout**  
+**Acknowledgements:** Hugging Face, Stability AI/TripoSR, ControlNet, rembg/IS-Net, PyTorch, OpenCV, trimesh, xatlas, PyMCubes, Gradio and Google Colab. Their pretrained models, code and licenses remain attributable to their original creators.
 
-**Team BSP:** Saurabh Poddar · Biswasmita Rout.  
-Built with pretrained [Stable Diffusion 1.5](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5), [ControlNet Scribble](https://huggingface.co/lllyasviel/control_v11p_sd15_scribble), [TripoSR](https://github.com/VAST-AI-Research/TripoSR), [rembg](https://github.com/danielgatis/rembg), [Hugging Face Diffusers](https://github.com/huggingface/diffusers), [PyTorch](https://pytorch.org/), [trimesh](https://github.com/mikedh/trimesh), [PyMCubes](https://github.com/pmneila/PyMCubes) and [xatlas](https://github.com/mworchel/xatlas-python). Respective upstream licenses and model usage restrictions apply.
+[report]: PASTE_REPORT_DRIVE_LINK_HERE
+[demo]: PASTE_VIDEO_DRIVE_LINK_HERE
 
-**Purpose:** Rapid concept exploration, educational demonstrations and early-stage asset prototyping—not guaranteed manufacturing-ready geometry.
